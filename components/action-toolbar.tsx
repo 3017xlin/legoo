@@ -55,47 +55,64 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
   }
 
   const baseButtonClass =
-    "w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+    "w-12 h-12 rounded-full flex items-center justify-center transition-all"
+
+  const modeButtonClass = (active: boolean, activeBg: string) =>
+    `${baseButtonClass} ${
+      active
+        ? `${activeBg} text-white ring-4 ring-white/80 scale-110`
+        : "bg-black/30 text-white hover:bg-black/50"
+    }`
+
+  const modeLabel = (active: boolean, label: string) =>
+    active ? (
+      <span className="absolute left-14 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white text-black text-xs font-semibold shadow whitespace-nowrap">
+        {label}
+      </span>
+    ) : null
 
   return (
     <div className="fixed top-4 left-4 flex flex-col gap-3 z-20">
-      <MaybeTooltip text="Build (b)">
-        <button
-          onClick={() => onModeChange("build")}
-          className={`${baseButtonClass} ${
-            currentMode === "build" ? "bg-black text-white" : "bg-black/30 text-white hover:bg-black/50"
-          }`}
-          aria-label="Build Mode (B)"
-          aria-pressed={currentMode === "build"}
-        >
-          <Hammer className="w-5 h-5 stroke-[1.5]" />
-        </button>
+      <MaybeTooltip text="搭积木 (B)">
+        <div className="relative">
+          <button
+            onClick={() => onModeChange("build")}
+            className={modeButtonClass(currentMode === "build", "bg-emerald-500")}
+            aria-label="搭积木模式 (B)"
+            aria-pressed={currentMode === "build"}
+          >
+            <Hammer className="w-5 h-5 stroke-[1.5]" />
+          </button>
+          {modeLabel(currentMode === "build", "搭积木")}
+        </div>
       </MaybeTooltip>
 
-      <MaybeTooltip text="Move (m)">
-        <button
-          onClick={() => onModeChange("move")}
-          className={`${baseButtonClass} ${
-            currentMode === "move" ? "bg-black text-white" : "bg-black/30 text-white hover:bg-black/50"
-          }`}
-          aria-label="Move Mode (M)"
-          aria-pressed={currentMode === "move"}
-        >
-          <Move className="w-5 h-5 stroke-[1.5]" />
-        </button>
+      <MaybeTooltip text="转视角 (M)">
+        <div className="relative">
+          <button
+            onClick={() => onModeChange("move")}
+            className={modeButtonClass(currentMode === "move", "bg-sky-500")}
+            aria-label="转视角模式 (M)"
+            aria-pressed={currentMode === "move"}
+          >
+            <Move className="w-5 h-5 stroke-[1.5]" />
+          </button>
+          {modeLabel(currentMode === "move", "转视角")}
+        </div>
       </MaybeTooltip>
 
-      <MaybeTooltip text="Erase (e)">
-        <button
-          onClick={() => onModeChange("erase")}
-          className={`${baseButtonClass} ${
-            currentMode === "erase" ? "bg-black text-white" : "bg-black/30 text-white hover:bg-black/50"
-          }`}
-          aria-label="Erase Mode (E)"
-          aria-pressed={currentMode === "erase"}
-        >
-          <Eraser className="w-5 h-5 stroke-[1.5]" />
-        </button>
+      <MaybeTooltip text="橡皮擦 (E)">
+        <div className="relative">
+          <button
+            onClick={() => onModeChange("erase")}
+            className={modeButtonClass(currentMode === "erase", "bg-rose-500")}
+            aria-label="橡皮擦模式 (E)"
+            aria-pressed={currentMode === "erase"}
+          >
+            <Eraser className="w-5 h-5 stroke-[1.5]" />
+          </button>
+          {modeLabel(currentMode === "erase", "橡皮擦")}
+        </div>
       </MaybeTooltip>
 
       <div className="w-10 h-px bg-white/30 mx-auto" />

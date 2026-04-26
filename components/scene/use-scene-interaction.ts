@@ -73,7 +73,7 @@ export function useSceneInteraction({
   ])
   const [isPlacing, setIsPlacing] = useState(true)
   const [isValid, setIsValid] = useState(true)
-  const [showNewBrick, setShowNewBrick] = useState(true)
+  const showNewBrick = true
   const [hoveredBrickIndex, setHoveredBrickIndex] = useState<number | null>(null)
   const [touchedBrickIndex, setTouchedBrickIndex] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -393,11 +393,6 @@ export function useSceneInteraction({
 
       const target = event.target as HTMLElement | null
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return
-
-      if (event.key === "h" || event.key === "H") {
-        setShowNewBrick((prev) => !prev)
-        return
-      }
 
       // Compute camera-relative axes (snap to one of the 4 cardinal directions).
       const camDir = new THREE.Vector3()

@@ -3,7 +3,9 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls } from "@react-three/drei"
-import { Pause } from "lucide-react"
+import * as THREE from "three"
+import { Pause, HelpCircle } from "lucide-react"
+import { TutorialOverlay } from "./tutorial-overlay"
 import { AudioPlayer } from "../audio-player"
 import { Scene } from "../scene"
 import { ColorSelector } from "../color-selector"
@@ -132,6 +134,19 @@ export default function V0Blocks() {
   const [showIntegrationDialog, setShowIntegrationDialog] = useState(false)
   const [integrationDialogType, setIntegrationDialogType] = useState<"save" | "load">("save")
   const [isKvAvailable, setIsKvAvailable] = useState(true)
+
+  const [showTutorial, setShowTutorial] = useState(false)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const seen = window.localStorage.getItem("legoo-tutorial-seen")
+    if (!seen) setShowTutorial(true)
+  }, [])
+  const handleCloseTutorial = useCallback(() => {
+    setShowTutorial(false)
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("legoo-tutorial-seen", "1")
+    }
+  }, [])
 
   useEffect(() => {
     const checkKvAvailability = async () => {
@@ -417,9 +432,29 @@ export default function V0Blocks() {
           maxDistance={400}
           autoRotate={isPlaying}
           autoRotateSpeed={1}
-          enableZoom={!isPlaying && interactionMode === "move"}
+          enableZoom={!isPlaying}
           enablePan={!isPlaying && interactionMode === "move"}
-          enableRotate={!isPlaying && interactionMode === "move"}
+          enableRotate={!isPlaying}
+          mouseButtons={
+            interactionMode === "move"
+              ? {
+                  LEFT: THREE.MOUSE.ROTATE,
+                  MIDDLE: THREE.MOUSE.DOLLY,
+                  RIGHT: THREE.MOUSE.PAN,
+                }
+              : {
+                  // In Build / Erase: left-click is for placing/erasing,
+                  // so route camera rotate to the right mouse button.
+                  LEFT: undefined as unknown as THREE.MOUSE,
+                  MIDDLE: THREE.MOUSE.DOLLY,
+                  RIGHT: THREE.MOUSE.ROTATE,
+                }
+          }
+          touches={
+            interactionMode === "move"
+              ? { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }
+              : { ONE: undefined as unknown as THREE.TOUCH, TWO: THREE.TOUCH.DOLLY_PAN }
+          }
         />
       </Canvas>
       {!isPlaying && (
@@ -494,6 +529,23 @@ export default function V0Blocks() {
         isOpen={showIntegrationDialog}
         onClose={() => setShowIntegrationDialog(false)}
         actionType={integrationDialogType}
+      />
+
+      {!isPlaying && (
+        <button
+          onClick={() => setShowTutorial(true)}
+          className="fixed top-4 right-4 z-30 w-12 h-12 rounded-full bg-white/90 hover:bg-white text-purple-700 shadow-lg flex items-center justify-center transition-colors"
+          aria-label="打开教程"
+          title="打开教程"
+        >
+          <HelpCircle className="w-6 h-6" />
+        </button>
+      )}
+
+      <TutorialOverlay
+        isOpen={showTutorial}
+        onClose={handleCloseTutorial}
+        currentMode={interactionMode}
       />
     </div>
   )

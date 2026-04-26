@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Environment, SoftShadows } from "@react-three/drei"
+import { SoftShadows } from "@react-three/drei"
 import type { SceneProps } from "./types"
 import { LargePlane } from "../large-plane"
 import { Platform } from "../platform"
@@ -106,10 +106,8 @@ export const Scene: React.FC<SceneProps> = ({
       </mesh>
 
       <LightingSetup />
-      <Environment
-        files="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bg-image-gradient-2.jpg-iFrfRqWi6BT95fkorMRZnQMfIdMrlT.jpeg"
-        background
-      />
+      <color attach="background" args={["#cfd8e8"]} />
+      <fog attach="fog" args={["#cfd8e8", 60, 300]} />
     </>
   )
 }

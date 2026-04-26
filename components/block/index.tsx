@@ -4,8 +4,8 @@ import type React from "react"
 import { useRef, useMemo } from "react"
 import * as THREE from "three"
 import { useFrame } from "@react-three/fiber"
-import { Instances, Instance, useTexture } from "@react-three/drei"
-import { BRICK_HEIGHT, LAYER_GAP, STUD_HEIGHT, STUD_RADIUS, STUD_SEGMENTS, TEXTURES } from "@/lib/constants"
+import { Instances, Instance } from "@react-three/drei"
+import { BRICK_HEIGHT, LAYER_GAP, STUD_HEIGHT, STUD_RADIUS, STUD_SEGMENTS, BRICK_MATERIAL } from "@/lib/constants"
 import type { BlockProps } from "./types"
 
 function buildSlopeGeometry(width: number, height: number, depth: number): THREE.BufferGeometry {
@@ -101,8 +101,6 @@ export const Block: React.FC<BlockProps> = ({
     return positions
   }, [width, depth, shape])
 
-  const textures = useTexture(TEXTURES)
-
   const brickRef = useRef<THREE.Mesh>(null)
   const studRef = useRef<THREE.InstancedMesh>(null)
   const sideStudRef = useRef<THREE.InstancedMesh>(null)
@@ -180,11 +178,8 @@ export const Block: React.FC<BlockProps> = ({
       <mesh ref={brickRef} geometry={blockGeometry} castShadow receiveShadow>
         <meshStandardMaterial
           color={darkenedColor}
-          roughnessMap={textures.roughness}
-          normalMap={textures.normal}
-          map={textures.color}
-          roughness={0.7}
-          metalness={0.1}
+          roughness={BRICK_MATERIAL.roughness}
+          metalness={BRICK_MATERIAL.metalness}
           emissive={isPlacing ? (isEraseHighlight ? "#ff0000" : "#ffff00") : "#000000"}
           emissiveIntensity={isPlacing ? 1 : 0}
           transparent={opacity < 1}
@@ -196,11 +191,8 @@ export const Block: React.FC<BlockProps> = ({
         <Instances ref={studRef} geometry={studGeometry} limit={instanceLimit}>
           <meshStandardMaterial
             color={darkenedColor}
-            roughnessMap={textures.roughness}
-            normalMap={textures.normal}
-            map={textures.color}
-            roughness={0.7}
-            metalness={0.1}
+            roughness={BRICK_MATERIAL.roughness}
+            metalness={BRICK_MATERIAL.metalness}
             emissive={isPlacing ? (isEraseHighlight ? "#ff0000" : "#ffff00") : "#000000"}
             emissiveIntensity={isPlacing ? 1 : 0}
             transparent={opacity < 1}
@@ -216,11 +208,8 @@ export const Block: React.FC<BlockProps> = ({
         <Instances ref={sideStudRef} geometry={studGeometry} limit={Math.max(width, 8)}>
           <meshStandardMaterial
             color={darkenedColor}
-            roughnessMap={textures.roughness}
-            normalMap={textures.normal}
-            map={textures.color}
-            roughness={0.7}
-            metalness={0.1}
+            roughness={BRICK_MATERIAL.roughness}
+            metalness={BRICK_MATERIAL.metalness}
             emissive={isPlacing ? (isEraseHighlight ? "#ff0000" : "#ffff00") : "#000000"}
             emissiveIntensity={isPlacing ? 1 : 0}
             transparent={opacity < 1}
