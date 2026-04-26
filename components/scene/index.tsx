@@ -10,17 +10,18 @@ import { EraseMode } from "./erase-mode"
 import { LightingSetup } from "./lighting-setup"
 import { useSceneInteraction } from "./use-scene-interaction"
 import { Block } from "../block"
-import { GRID_SIZE } from "@/constants"
+import { INTERACTION_PLANE_SIZE, GROUND_HEIGHT, BRICK_HEIGHT } from "@/lib/constants"
 
 export const Scene: React.FC<SceneProps> = ({
   bricks,
   selectedColor,
   width,
   depth,
+  shape,
+  rotation,
+  floorOffset,
   onAddBrick,
   onDeleteBrick,
-  onUndo,
-  onRedo,
   isPlaying,
   interactionMode = "build",
 }) => {
@@ -40,19 +41,25 @@ export const Scene: React.FC<SceneProps> = ({
     width,
     depth,
     selectedColor,
+    shape,
+    rotation,
+    floorOffset,
     onAddBrick,
     onDeleteBrick,
     isPlaying,
     interactionMode,
   })
 
+  // Y-position for the interaction plane (matches the floor for the current floorOffset).
+  const planeY = -floorOffset * BRICK_HEIGHT
+  const highlightFloorY = planeY + GROUND_HEIGHT / 2 + 0.01
+
   return (
     <>
       <SoftShadows size={25} samples={16} focus={0.5} />
       <LargePlane />
-      <Platform />
+      <Platform floorOffset={floorOffset} />
 
-      {/* Render all bricks */}
       {bricks.map((brick, index) => (
         <Block
           key={index}
@@ -60,12 +67,13 @@ export const Scene: React.FC<SceneProps> = ({
           position={brick.position}
           width={brick.width}
           height={brick.height}
+          shape={brick.shape}
+          rotation={brick.rotation}
           isPlacing={hoveredBrickIndex === index && interactionMode === "erase"}
           onClick={() => handleBrickClick(index)}
         />
       ))}
 
-      {/* Render appropriate mode components */}
       {interactionMode === "build" && !isPlaying && (
         <BuildMode
           showNewBrick={showNewBrick}
@@ -74,23 +82,26 @@ export const Scene: React.FC<SceneProps> = ({
           selectedColor={selectedColor}
           width={width}
           depth={depth}
+          shape={shape}
+          rotation={rotation}
+          floorY={highlightFloorY}
         />
       )}
 
       {interactionMode === "erase" && !isPlaying && <EraseMode />}
 
-      {/* The plane is always present but only interactive when not playing and in build mode */}
+      {/* Large invisible interaction plane — supports infinite board placement. */}
       <mesh
         ref={planeRef}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0, 0]}
+        position={[0, planeY, 0]}
         onClick={handleClick}
         onPointerDown={handleTouchStart}
         onPointerMove={handleTouchMove}
         onPointerUp={handleTouchEnd}
         onPointerLeave={handleTouchEnd}
       >
-        <planeGeometry args={[GRID_SIZE, GRID_SIZE]} />
+        <planeGeometry args={[INTERACTION_PLANE_SIZE, INTERACTION_PLANE_SIZE]} />
         <meshBasicMaterial visible={false} />
       </mesh>
 
