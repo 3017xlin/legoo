@@ -1,16 +1,18 @@
 import type { Dispatch, SetStateAction } from "react"
 
-// Define types for our brick and history
+export type BrickShape = "rect" | "flatTop" | "slope" | "bracket"
+
 export type Brick = {
   color: string
   position: [number, number, number]
   width: number
   height: number
+  shape?: BrickShape
+  rotation?: [number, number, number]
 }
 
 export type BrickHistory = Brick[][]
 
-// Event handlers
 export const handleAddBrick = (
   brick: Brick,
   bricks: Brick[],
@@ -21,6 +23,23 @@ export const handleAddBrick = (
   setHistoryIndex: Dispatch<SetStateAction<number>>,
 ) => {
   const newBricks = [...bricks, brick]
+  setBricks(newBricks)
+  const newHistory = history.slice(0, historyIndex + 1)
+  newHistory.push(newBricks)
+  setHistory(newHistory)
+  setHistoryIndex(historyIndex + 1)
+}
+
+export const handleAddBricks = (
+  newBricksToAdd: Brick[],
+  bricks: Brick[],
+  setBricks: Dispatch<SetStateAction<Brick[]>>,
+  history: BrickHistory,
+  historyIndex: number,
+  setHistory: Dispatch<SetStateAction<BrickHistory>>,
+  setHistoryIndex: Dispatch<SetStateAction<number>>,
+) => {
+  const newBricks = [...bricks, ...newBricksToAdd]
   setBricks(newBricks)
   const newHistory = history.slice(0, historyIndex + 1)
   newHistory.push(newBricks)

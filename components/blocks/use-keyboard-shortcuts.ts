@@ -1,16 +1,14 @@
 "use client"
 
 import { useEffect } from "react"
+import { MIN_FLOOR_OFFSET, MAX_FLOOR_OFFSET } from "@/lib/constants"
 
-// Helper function to check if we're currently focused on an input element
 function isInputElement(): boolean {
   const activeElement = document.activeElement
   if (!activeElement) return false
-
   const tagName = activeElement.tagName.toLowerCase()
   const isEditable =
     activeElement.hasAttribute("contenteditable") && activeElement.getAttribute("contenteditable") !== "false"
-
   return tagName === "input" || tagName === "textarea" || tagName === "select" || isEditable
 }
 
@@ -31,6 +29,9 @@ interface KeyboardShortcutsProps {
   handleLoad: () => void
   currentTheme: string
   handleThemeChange: (theme: string) => void
+  onRotate: (axis: "x" | "y" | "z") => void
+  floorOffset: number
+  setFloorOffset: (offset: number | ((prev: number) => number)) => void
 }
 
 export function useKeyboardShortcuts({
@@ -50,37 +51,40 @@ export function useKeyboardShortcuts({
   handleLoad,
   currentTheme,
   handleThemeChange,
+  onRotate,
+  floorOffset,
+  setFloorOffset,
 }: KeyboardShortcutsProps) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Skip keyboard shortcuts when playing
       if (isPlaying) return
-
-      // Skip keyboard shortcuts when typing in an input field
       if (isInputElement()) return
 
-      // Swap dimensions with S key
-      if (event.key === "S" || event.key === "s") {
-        setWidth((prevWidth) => depth)
-        setDepth((prevDepth) => width)
+      // Rotation: R (Y-axis), Shift+R (X-axis), Alt+R (Z-axis)
+      if (event.key.toLowerCase() === "r" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault()
+        if (event.altKey) onRotate("z")
+        else if (event.shiftKey) onRotate("x")
+        else onRotate("y")
+        return
       }
 
-      // Switch to Build mode with B key
+      // Swap dimensions with X (was S — now reserved for save shortcut + slope key)
+      if (event.key === "x" && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+        setWidth(() => depth)
+        setDepth(() => width)
+      }
+
       if (event.key === "B" || event.key === "b") {
         setInteractionMode("build")
       }
-
-      // Switch to Move mode with M key
       if (event.key === "M" || event.key === "m") {
         setInteractionMode("move")
       }
-
-      // Switch to Erase mode with E key
       if (event.key === "E" || event.key === "e") {
         setInteractionMode("erase")
       }
 
-      // Cycle through color themes with C key
       if (event.key === "C" || event.key === "c") {
         const themes = ["default", "muted", "monochrome"]
         const currentIndex = themes.indexOf(currentTheme)
@@ -88,27 +92,29 @@ export function useKeyboardShortcuts({
         handleThemeChange(themes[nextIndex])
       }
 
-      // Decrease width with [ key
       if (event.key === "[" && !event.shiftKey) {
         setWidth((prevWidth) => Math.max(1, prevWidth - 1))
       }
-
-      // Increase width with ] key
       if (event.key === "]" && !event.shiftKey) {
         setWidth((prevWidth) => Math.min(20, prevWidth + 1))
       }
-
-      // Decrease depth with ; key
       if (event.key === ";") {
         setDepth((prevDepth) => Math.max(1, prevDepth - 1))
       }
-
-      // Increase depth with ' key
       if (event.key === "'") {
         setDepth((prevDepth) => Math.min(20, prevDepth + 1))
       }
 
-      // Color selection with number keys 1-8
+      // Floor offset: , raises floor, . lowers it (room for underneath insertion)
+      if (event.key === "," && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault()
+        setFloorOffset((prev) => Math.max(MIN_FLOOR_OFFSET, prev - 1))
+      }
+      if (event.key === "." && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault()
+        setFloorOffset((prev) => Math.min(MAX_FLOOR_OFFSET, prev + 1))
+      }
+
       if (event.key >= "1" && event.key <= "8") {
         const colorIndex = Number.parseInt(event.key) - 1
         if (colorIndex >= 0 && colorIndex < currentColors.length) {
@@ -116,52 +122,33 @@ export function useKeyboardShortcuts({
         }
       }
 
-      // Undo: CMD+Z (Mac) or CTRL+Z (Windows)
       if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === "z") {
         event.preventDefault()
-        console.log("CMD+Z pressed")
         onUndo()
       }
-
-      // Redo: CMD+SHIFT+Z (Mac) or CTRL+SHIFT+Z (Windows)
       if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "z") {
         event.preventDefault()
-        console.log("CMD+SHIFT+Z pressed")
         onRedo()
       }
-
-      // Keep CMD+Y as an alternative for redo for backward compatibility
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
         event.preventDefault()
-        console.log("CMD+Y pressed")
         onRedo()
       }
 
-      // Play: CMD+Enter
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault()
-        console.log("CMD+Enter pressed")
         onPlayToggle()
       }
-
-      // Clear: CMD+Delete or CMD+Backspace
       if ((event.metaKey || event.ctrlKey) && (event.key === "Delete" || event.key === "Backspace")) {
         event.preventDefault()
-        console.log("CMD+Delete pressed")
         handleClearWithConfirmation()
       }
-
-      // Save: CMD+S
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault()
-        console.log("CMD+S pressed")
         handleSave()
       }
-
-      // Load: CMD+O
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "o") {
         event.preventDefault()
-        console.log("CMD+O pressed")
         handleLoad()
       }
     }
@@ -185,5 +172,8 @@ export function useKeyboardShortcuts({
     handleLoad,
     currentTheme,
     handleThemeChange,
+    onRotate,
+    floorOffset,
+    setFloorOffset,
   ])
 }

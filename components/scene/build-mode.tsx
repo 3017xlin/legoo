@@ -3,6 +3,7 @@
 import type React from "react"
 import { Block } from "../block"
 import { HighlightSquare } from "../highlight-square"
+import type { BrickShape } from "@/components/blocks/events"
 
 interface BuildModeProps {
   showNewBrick: boolean
@@ -11,6 +12,9 @@ interface BuildModeProps {
   selectedColor: string
   width: number
   depth: number
+  shape: BrickShape
+  rotation: [number, number, number]
+  floorY: number
 }
 
 export const BuildMode: React.FC<BuildModeProps> = ({
@@ -20,6 +24,9 @@ export const BuildMode: React.FC<BuildModeProps> = ({
   selectedColor,
   width,
   depth,
+  shape,
+  rotation,
+  floorY,
 }) => {
   if (!showNewBrick) return null
 
@@ -30,11 +37,13 @@ export const BuildMode: React.FC<BuildModeProps> = ({
         position={currentBrickPosition}
         width={width}
         height={depth}
+        shape={shape}
+        rotation={rotation}
         isPlacing={true}
-        opacity={0.6} // Make the highlight brick semi-transparent
+        opacity={0.6}
       />
       <HighlightSquare
-        position={[currentBrickPosition[0], 0.01, currentBrickPosition[2]]}
+        position={[currentBrickPosition[0], floorY, currentBrickPosition[2]]}
         isValid={isValid}
         width={width}
         height={depth}
