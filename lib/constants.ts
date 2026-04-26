@@ -9,20 +9,14 @@ export const STUD_SEGMENTS = 16
 export const MIN_FLOOR_OFFSET = 0
 export const MAX_FLOOR_OFFSET = 20
 
-export const TEXTURES = {
-  roughness:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Plastic013A_1K-JPG_Roughness-uXe3bt2x4CgFTpjN9nyi0fPRvu69f2.jpg",
-  normal:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Plastic013A_1K-JPG_NormalGL-K5hpwiN8hyBFaqLgpGOBe1n7JypC5n.jpg",
-  color:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Plastic013A_1K-JPG_Color-vAhGH2sCmmtYLZ4Qp4UAdIIqzuTWkB.jpg",
+// Solid plastic look — no external texture dependencies.
+export const BRICK_MATERIAL = {
+  roughness: 0.55,
+  metalness: 0.05,
 }
 
-export const MARBLE_TEXTURES = {
-  roughness:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Marble019_1K-JPG_Roughness-E11kZGSuFRz7Tw1kAaDKzpCm9PexxD.jpg",
-  normal:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Marble019_1K-JPG_NormalGL-yyE1gw0semnetBvj2CIz5UfqwTwoHr.jpg",
-  color:
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Marble019_1K-JPG_Color-yiNesdpa46Mn7IwRiCFo11NERCO2Yw.jpg",
+export const GROUND_MATERIAL = {
+  color: "#f5f5f7",
+  roughness: 0.85,
+  metalness: 0.0,
 }
